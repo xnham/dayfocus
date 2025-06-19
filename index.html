@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Focus</title>
+    <link rel="icon" type="image/png" href="focus.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container fade-in">
+        <p class="today-is"><span class="date" id="today-date"></span>.</p>
+        <h1>What will make today a successful day at work?</h1>
+        
+        <div 
+            id="motivation-text" 
+            class="editable-field"
+            contenteditable="true"
+        ></div>
+        
+        <div class="archive-section">
+            <a href="archive.html" class="link">
+                See Archive →
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Get today's date in a nice format using America/New_York timezone
+        function getTodayDate() {
+            const today = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                timeZone: 'America/New_York'
+            };
+            return today.toLocaleDateString('en-US', options);
+        }
+
+        // Get today's date as a simple string for storage key using America/New_York timezone
+        function getTodayKey() {
+            const today = new Date();
+            const nyDate = new Date(today.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            return nyDate.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+        }
+
+        // Load saved text for today
+        function loadTodayText() {
+            const todayKey = getTodayKey();
+            const savedText = localStorage.getItem(`motivation-${todayKey}`);
+            return savedText || '';
+        }
+
+        // Save text for today
+        function saveTodayText(text) {
+            const todayKey = getTodayKey();
+            localStorage.setItem(`motivation-${todayKey}`, text);
+        }
+
+        // Clean up old entries (optional - keeps storage clean)
+        function cleanupOldEntries() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('motivation-')) {
+                    const dateStr = key.replace('motivation-', '');
+                    const entryDate = new Date(dateStr);
+                    if (entryDate < thirtyDaysAgo) {
+                        localStorage.removeItem(key);
+                        i--; // Adjust index since we removed an item
+                    }
+                }
+            }
+        }
+
+        // Initialize the page
+        function init() {
+            // Set today's date
+            document.getElementById('today-date').textContent = getTodayDate();
+            
+            // Load and display saved text
+            const editableField = document.getElementById('motivation-text');
+            const savedText = loadTodayText();
+            editableField.innerHTML = savedText;
+            
+            // Handle placeholder visibility
+            function updatePlaceholder() {
+                if (editableField.textContent.trim() === '') {
+                    editableField.classList.add('empty');
+                } else {
+                    editableField.classList.remove('empty');
+                }
+            }
+            
+            // Initial placeholder check
+            updatePlaceholder();
+            
+            // Focus the editable field on page load
+            editableField.focus();
+            
+            // Save text as user types (with debouncing)
+            let saveTimeout;
+            function handleInput() {
+                clearTimeout(saveTimeout);
+                updatePlaceholder();
+                saveTimeout = setTimeout(() => {
+                    saveTodayText(editableField.innerHTML);
+                    showSaveIndicator();
+                }, 500);
+            }
+            
+            editableField.addEventListener('input', handleInput);
+            editableField.addEventListener('blur', handleInput);
+            
+            // Clean up old entries
+            cleanupOldEntries();
+        }
+
+        // Show save indicator briefly
+        function showSaveIndicator() {
+            const indicator = document.getElementById('save-indicator');
+            if (indicator) {
+                indicator.style.opacity = '1';
+                indicator.textContent = '✓ Saved';
+                
+                setTimeout(() => {
+                    indicator.style.opacity = '0.8';
+                    indicator.textContent = 'Your answer is automatically saved';
+                }, 2000);
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Focus Archive</title>
+    <link rel="icon" type="image/png" href="focus.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="archive-page">
+    <div class="container archive-container fade-in">
+        <a href="index.html" class="link archive-back-link">← Back to Today</a>
+        
+        <h1>Archive</h1>
+        
+        <div id="entries-container">
+            <div class="no-entries">
+                Loading your entries...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get current date in America/New_York timezone
+        function getCurrentDateInNY() {
+            const now = new Date();
+            const nyDate = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            return nyDate.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+        }
+
+        // Format date nicely
+        function formatDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            return date.toLocaleDateString('en-US', options);
+        }
+        
+        // Load all entries from localStorage, excluding today's entry
+        function loadAllEntries() {
+            const entries = [];
+            const todayKey = getCurrentDateInNY();
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('motivation-')) {
+                    const dateStr = key.replace('motivation-', '');
+                    const text = localStorage.getItem(key);
+                    
+                    // Only include entries from previous days (not today)
+                    if (text && text.trim() && dateStr !== todayKey) {
+                        entries.push({
+                            date: dateStr,
+                            text: text
+                        });
+                    }
+                }
+            }
+            
+            // Sort by date (newest first)
+            entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+            return entries;
+        }
+        
+        // Delete entry
+        function deleteEntry(dateStr) {
+            if (confirm('Are you sure you want to delete this entry? This cannot be undone.')) {
+                localStorage.removeItem(`motivation-${dateStr}`);
+                loadAndDisplayEntries();
+            }
+        }
+        
+        // Display entries in three-column format
+        function displayEntries(entries) {
+            const container = document.getElementById('entries-container');
+            
+            if (entries.length === 0) {
+                container.innerHTML = '<div class="no-entries">No entries found.</div>';
+                return;
+            }
+            
+            container.innerHTML = entries.map(entry => `
+                <div class="entry-row">
+                    <div class="entry-date-column">
+                        ${formatDate(entry.date)}
+                    </div>
+                    <div class="entry-text-column">
+                        ${entry.text}
+                    </div>
+                    <div class="entry-delete-column">
+                        <button class="delete-btn" onclick="deleteEntry('${entry.date}')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Load and display all entries
+        function loadAndDisplayEntries() {
+            const entries = loadAllEntries();
+            displayEntries(entries);
+        }
+        
+        // Initialize the page
+        function init() {
+            loadAndDisplayEntries();
+        }
+        
+        // Load when page is ready
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

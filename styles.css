@@ -1,0 +1,173 @@
+/* ===== FONTS ===== */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+/* ===== BASE STYLES ===== */
+body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #bcb8ac;
+    color: #333;
+    width: 90%;
+    max-width: 700px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+h1 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 1.2;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+/* ===== LAYOUT COMPONENTS ===== */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    background: #ffffff;
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px 60px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== MAIN PAGE COMPONENTS ===== */
+.today-is {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.editable-field {
+    width: 100%;
+    padding: 8px;
+    font-size: 18px;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 400;
+    color: #333;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.3s ease;
+    text-align: center;
+    line-height: 1.5;
+    margin: 0 auto;
+    position: relative;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    border-bottom: 1px solid #333;
+}
+
+.save-indicator {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+    opacity: 0.8;
+    min-height: 20px;
+}
+
+.archive-section {
+    text-align: right;
+    margin-top: 20px;
+    width: 100%;
+}
+
+/* ===== LINKS ===== */
+.link {
+    color: #333333D9;
+    text-decoration: underline;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+/* ===== ARCHIVE PAGE STYLES ===== */
+.archive-back-link {
+    align-self: flex-start;
+    margin-bottom: 20px;
+}
+
+.entry-row {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    gap: 20px;
+}
+
+.entry-date-column {
+    flex: 0 0 180px;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+    padding: 8px 0;
+}
+
+.entry-text-column {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+    padding: 8px 0;
+}
+
+.entry-delete-column {
+    flex: 0 0 40px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 8px 0;
+}
+
+.entry-text {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+}
+
+.no-entries {
+    text-align: center;
+    font-size: 15px;
+    padding: 60px 20px;
+}
+
+.delete-btn {
+    background: none;
+    color: #333;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-btn:hover {
+    transform: scale(1.1);
+}
+
+/* ===== ANIMATIONS ===== */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+} 
