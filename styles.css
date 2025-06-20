@@ -28,6 +28,13 @@ h1 {
     margin-bottom: 20px;
 }
 
+.link {
+    color: #333333D9;
+    text-decoration: underline;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
 /* ===== LAYOUT COMPONENTS ===== */
 .container {
     display: flex;
@@ -78,18 +85,54 @@ h1 {
     min-height: 20px;
 }
 
-.archive-section {
-    text-align: right;
+.bottom-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-top: 20px;
     width: 100%;
 }
 
-/* ===== LINKS ===== */
-.link {
-    color: #333333D9;
-    text-decoration: underline;
+.success-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.success-checkbox input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid #333;
+    border-radius: 3px;
+    background-color: transparent;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.success-checkbox input[type="checkbox"]:checked {
+    background-color: #333;
+    border-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.success-checkbox input[type="checkbox"]:checked::after {
+    content: '✔';
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.success-checkbox label {
     font-size: 14px;
-    transition: all 0.3s ease;
+    cursor: pointer;
+    user-select: none;
 }
 
 /* ===== ARCHIVE PAGE STYLES ===== */
@@ -99,7 +142,7 @@ h1 {
 }
 
 .entry-row {
-    width: 600px;
+    width: 700px;
     display: flex;
     align-items: flex-start;
     margin-top: 10px;
@@ -121,6 +164,16 @@ h1 {
     padding: 8px 0;
 }
 
+.entry-success-column {
+    flex: 0 0 60px;
+    font-size: 14px;
+    line-height: 1.4;
+    padding: 8px 0;
+    text-align: center;
+    font-weight: 500;
+    border-radius: 4px;
+}
+
 .entry-delete-column {
     flex: 0 0 40px;
     display: flex;
@@ -129,10 +182,23 @@ h1 {
     padding: 0;
 }
 
-.entry-text {
-    font-size: 14px;
-    color: #333;
-    line-height: 1.4;
+.success-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.success-status.success {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.success-status.fail {
+    background-color: #f44336;
+    color: white;
 }
 
 .no-entries {

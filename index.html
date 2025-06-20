@@ -18,7 +18,11 @@
             contenteditable="true"
         ></div>
         
-        <div class="archive-section">
+        <div class="bottom-section">
+            <div class="success-checkbox">
+                <input type="checkbox" id="success-checkbox" />
+                <label for="success-checkbox">Success?</label>
+            </div>
             <a href="archive.html" class="link">
                 See Archive →
             </a>
@@ -53,10 +57,23 @@
             return savedText || '';
         }
 
+        // Load saved checkbox state for today
+        function loadTodaySuccess() {
+            const todayKey = getTodayKey();
+            const savedSuccess = localStorage.getItem(`success-${todayKey}`);
+            return savedSuccess === 'true';
+        }
+
         // Save text for today
         function saveTodayText(text) {
             const todayKey = getTodayKey();
             localStorage.setItem(`motivation-${todayKey}`, text);
+        }
+
+        // Save checkbox state for today
+        function saveTodaySuccess(isChecked) {
+            const todayKey = getTodayKey();
+            localStorage.setItem(`success-${todayKey}`, isChecked.toString());
         }
 
         // Clean up old entries (optional - keeps storage clean)
@@ -87,6 +104,11 @@
             const savedText = loadTodayText();
             editableField.innerHTML = savedText;
             
+            // Load and set checkbox state
+            const successCheckbox = document.getElementById('success-checkbox');
+            const savedSuccess = loadTodaySuccess();
+            successCheckbox.checked = savedSuccess;
+            
             // Handle placeholder visibility
             function updatePlaceholder() {
                 if (editableField.textContent.trim() === '') {
@@ -115,6 +137,12 @@
             
             editableField.addEventListener('input', handleInput);
             editableField.addEventListener('blur', handleInput);
+            
+            // Save checkbox state when changed
+            successCheckbox.addEventListener('change', function() {
+                saveTodaySuccess(this.checked);
+                showSaveIndicator();
+            });
             
             // Clean up old entries
             cleanupOldEntries();

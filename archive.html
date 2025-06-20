@@ -51,12 +51,15 @@
                 if (key && key.startsWith('motivation-')) {
                     const dateStr = key.replace('motivation-', '');
                     const text = localStorage.getItem(key);
+                    const successKey = `success-${dateStr}`;
+                    const successValue = localStorage.getItem(successKey);
                     
                     // Only include entries from previous days (not today)
                     if (text && text.trim() && dateStr !== todayKey) {
                         entries.push({
                             date: dateStr,
-                            text: text
+                            text: text,
+                            success: successValue === 'true' ? 'success' : 'fail'
                         });
                     }
                 }
@@ -75,7 +78,7 @@
             }
         }
         
-        // Display entries in three-column format
+        // Display entries in four-column format
         function displayEntries(entries) {
             const container = document.getElementById('entries-container');
             
@@ -91,6 +94,9 @@
                     </div>
                     <div class="entry-text-column">
                         ${entry.text}
+                    </div>
+                    <div class="entry-success-column">
+                        <span class="success-status ${entry.success}">${entry.success}</span>
                     </div>
                     <div class="entry-delete-column">
                         <button class="delete-btn" onclick="deleteEntry('${entry.date}')">
