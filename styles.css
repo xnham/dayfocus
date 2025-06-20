@@ -99,6 +99,7 @@ h1 {
 }
 
 .entry-row {
+    width: 600px;
     display: flex;
     align-items: flex-start;
     margin-top: 10px;
@@ -109,7 +110,6 @@ h1 {
 .entry-date-column {
     flex: 0 0 180px;
     font-size: 14px;
-    color: #333;
     line-height: 1.4;
     padding: 8px 0;
 }
@@ -117,7 +117,6 @@ h1 {
 .entry-text-column {
     flex: 1;
     font-size: 14px;
-    color: #333;
     line-height: 1.4;
     padding: 8px 0;
 }
@@ -127,7 +126,7 @@ h1 {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 8px 0;
+    padding: 0;
 }
 
 .entry-text {
@@ -146,7 +145,6 @@ h1 {
     background: none;
     color: #333;
     border: none;
-    padding: 8px;
     border-radius: 50%;
     font-size: 14px;
     cursor: pointer;
