@@ -74,8 +74,17 @@
         function deleteEntry(dateStr) {
             if (confirm('Are you sure you want to delete this entry? This cannot be undone.')) {
                 localStorage.removeItem(`motivation-${dateStr}`);
+                localStorage.removeItem(`success-${dateStr}`);
                 loadAndDisplayEntries();
             }
+        }
+        
+        // Toggle success status
+        function toggleSuccess(dateStr) {
+            const currentSuccess = localStorage.getItem(`success-${dateStr}`);
+            const newSuccess = currentSuccess === 'true' ? 'false' : 'true';
+            localStorage.setItem(`success-${dateStr}`, newSuccess);
+            loadAndDisplayEntries();
         }
         
         // Display entries in four-column format
@@ -96,7 +105,9 @@
                         ${entry.text}
                     </div>
                     <div class="entry-success-column">
-                        <span class="success-status ${entry.success}">${entry.success}</span>
+                        <button class="success-toggle ${entry.success}" onclick="toggleSuccess('${entry.date}')">
+                            ${entry.success.toUpperCase()}
+                        </button>
                     </div>
                     <div class="entry-delete-column">
                         <button class="delete-btn" onclick="deleteEntry('${entry.date}')">
