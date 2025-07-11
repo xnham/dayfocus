@@ -100,7 +100,7 @@
                     return {
                         date: date,
                         text: 'No entry',
-                        success: 'n/a',
+                        success: 'n-a',
                         isEmpty: true
                     };
                 }
@@ -144,7 +144,7 @@
                         ${entry.text}
                     </div>
                     <div class="entry-success-column">
-                        <button class="success-toggle ${entry.success}" onclick="toggleSuccess('${entry.date}')">
+                        <button class="success-toggle ${entry.success}" ${entry.isEmpty ? '' : `onclick="toggleSuccess('${entry.date}')"`}>
                             ${entry.success.toUpperCase()}
                         </button>
                     </div>

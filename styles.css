@@ -149,10 +149,6 @@ h1 {
     margin: 10px 0;
 }
 
-.entry-row.empty-entry {
-    opacity: 0.6;
-}
-
 .entry-date-column,
 .entry-text-column,
 .entry-success-column {
@@ -204,16 +200,10 @@ h1 {
 }
 
 .success-toggle.n-a {
-    background-color: #9e9e9e;
-    color: white;
-    border-color: #9e9e9e;
+    background-color: #D3D3D3;
+    color: #6A6A6A;
+    border-color: #D3D3D3;
     cursor: not-allowed;
-}
-
-.success-toggle.n-a:hover {
-    background-color: #757575;
-    border-color: #757575;
-    transform: none;
 }
 
 .success-status {
