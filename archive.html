@@ -41,11 +41,26 @@
             return date.toLocaleDateString('en-US', options);
         }
         
-        // Load all entries from localStorage, excluding today's entry
+        // Generate array of dates between start and end (inclusive)
+        function getDateRange(startDate, endDate) {
+            const dates = [];
+            const current = new Date(startDate + 'T00:00:00');
+            const end = new Date(endDate + 'T00:00:00');
+            
+            while (current <= end) {
+                dates.push(current.toISOString().split('T')[0]);
+                current.setDate(current.getDate() + 1);
+            }
+            
+            return dates;
+        }
+        
+        // Load all entries from localStorage, filling in missing days
         function loadAllEntries() {
-            const entries = [];
+            const existingEntries = {};
             const todayKey = getCurrentDateInNY();
             
+            // First, load all existing entries
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key && key.startsWith('motivation-')) {
@@ -55,32 +70,76 @@
                     const successValue = localStorage.getItem(successKey);
                     
                     // Only include entries from previous days (not today)
-                    if (text && text.trim() && dateStr !== todayKey) {
-                        entries.push({
+                    if (dateStr !== todayKey) {
+                        existingEntries[dateStr] = {
                             date: dateStr,
-                            text: text,
+                            text: text && text.trim() ? text : null,
                             success: successValue === 'true' ? 'success' : 'fail'
-                        });
+                        };
                     }
                 }
             }
             
+            // Find date range
+            const dates = Object.keys(existingEntries).sort();
+            if (dates.length === 0) {
+                return [];
+            }
+            
+            const oldestDate = dates[0];
+            const newestDate = dates[dates.length - 1];
+            
+            // Generate all dates in range
+            const allDates = getDateRange(oldestDate, newestDate);
+            
+            // Create entries for all dates
+            const allEntries = allDates.map(date => {
+                if (existingEntries[date] && existingEntries[date].text) {
+                    return existingEntries[date];
+                } else {
+                    return {
+                        date: date,
+                        text: 'No entry',
+                        success: 'n/a',
+                        isEmpty: true
+                    };
+                }
+            });
+            
             // Sort by date (newest first)
-            entries.sort((a, b) => new Date(b.date) - new Date(a.date));
-            return entries;
+            allEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
+            return allEntries;
         }
         
         // Delete entry
         function deleteEntry(dateStr) {
+            // Check if this is an empty entry
+            const motivationKey = `motivation-${dateStr}`;
+            const successKey = `success-${dateStr}`;
+            const hasMotivation = localStorage.getItem(motivationKey);
+            const hasSuccess = localStorage.getItem(successKey);
+            
+            if (!hasMotivation && !hasSuccess) {
+                alert('This is an empty day entry - nothing to delete.');
+                return;
+            }
+            
             if (confirm('Are you sure you want to delete this entry? This cannot be undone.')) {
-                localStorage.removeItem(`motivation-${dateStr}`);
-                localStorage.removeItem(`success-${dateStr}`);
+                localStorage.removeItem(motivationKey);
+                localStorage.removeItem(successKey);
                 loadAndDisplayEntries();
             }
         }
         
         // Toggle success status
         function toggleSuccess(dateStr) {
+            // Check if this is an empty entry
+            const entry = loadAllEntries().find(e => e.date === dateStr);
+            if (entry && entry.isEmpty) {
+                alert('Cannot change success status for empty entries. Add some text first on the main page.');
+                return;
+            }
+            
             const currentSuccess = localStorage.getItem(`success-${dateStr}`);
             const newSuccess = currentSuccess === 'true' ? 'false' : 'true';
             localStorage.setItem(`success-${dateStr}`, newSuccess);
@@ -97,11 +156,11 @@
             }
             
             container.innerHTML = entries.map(entry => `
-                <div class="entry-row">
+                <div class="entry-row ${entry.isEmpty ? 'empty-entry' : ''}">
                     <div class="entry-date-column">
                         ${formatDate(entry.date)}
                     </div>
-                    <div class="entry-text-column">
+                    <div class="entry-text-column ${entry.isEmpty ? 'empty-text' : ''}">
                         ${entry.text}
                     </div>
                     <div class="entry-success-column">
