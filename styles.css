@@ -144,7 +144,7 @@ h1 {
 .entry-row {
     width: 700px;
     display: grid;
-    grid-template-columns: 180px 380px 100px 40px;
+    grid-template-columns: 180px 420px 100px;
     align-items: start;
     margin: 10px 0;
 }
@@ -155,27 +155,14 @@ h1 {
 
 .entry-date-column,
 .entry-text-column,
-.entry-success-column,
-.entry-delete-column {
+.entry-success-column {
     padding: 8px;
     font-size: 14px;
     line-height: 1.4;
 }
 
-.entry-text-column.empty-text {
-    font-style: italic;
-    color: #666;
-}
-
 .entry-success-column {
     text-align: center;
-}
-
-.entry-delete-column {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 3px;
 }
 
 .success-toggle {
@@ -246,31 +233,6 @@ h1 {
 .success-status.fail {
     background-color: #f44336;
     color: white;
-}
-
-.no-entries {
-    text-align: center;
-    font-size: 15px;
-    padding: 60px 20px;
-}
-
-.delete-btn {
-    background: none;
-    color: #333;
-    border: none;
-    border-radius: 50%;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.delete-btn:hover {
-    transform: scale(1.1);
 }
 
 /* ===== ANIMATIONS ===== */

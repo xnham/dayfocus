@@ -111,26 +111,6 @@
             return allEntries;
         }
         
-        // Delete entry
-        function deleteEntry(dateStr) {
-            // Check if this is an empty entry
-            const motivationKey = `motivation-${dateStr}`;
-            const successKey = `success-${dateStr}`;
-            const hasMotivation = localStorage.getItem(motivationKey);
-            const hasSuccess = localStorage.getItem(successKey);
-            
-            if (!hasMotivation && !hasSuccess) {
-                alert('This is an empty day entry - nothing to delete.');
-                return;
-            }
-            
-            if (confirm('Are you sure you want to delete this entry? This cannot be undone.')) {
-                localStorage.removeItem(motivationKey);
-                localStorage.removeItem(successKey);
-                loadAndDisplayEntries();
-            }
-        }
-        
         // Toggle success status
         function toggleSuccess(dateStr) {
             // Check if this is an empty entry
@@ -166,11 +146,6 @@
                     <div class="entry-success-column">
                         <button class="success-toggle ${entry.success}" onclick="toggleSuccess('${entry.date}')">
                             ${entry.success.toUpperCase()}
-                        </button>
-                    </div>
-                    <div class="entry-delete-column">
-                        <button class="delete-btn" onclick="deleteEntry('${entry.date}')">
-                            <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
                 </div>
