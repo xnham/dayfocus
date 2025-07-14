@@ -46,11 +46,14 @@
         // Get today's date as a simple string for storage key using America/New_York timezone
         function getTodayKey() {
             const today = new Date();
-            const nyDate = new Date(today.toLocaleString("en-US", {timeZone: "America/New_York"}));
-            const year = nyDate.getFullYear();
-            const month = String(nyDate.getMonth() + 1).padStart(2, '0');
-            const day = String(nyDate.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+            // Use Intl.DateTimeFormat to get date parts in NY timezone
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'America/New_York',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+            return formatter.format(today); // Returns YYYY-MM-DD
         }
 
         // Load saved text for today
