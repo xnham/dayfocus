@@ -79,6 +79,11 @@
         function loadAllEntries() {
             const existingEntries = {};
             const todayKey = getCurrentDateInNY();
+            const yesterdayKey = getYesterdayInNY();
+            
+            // Debug logging
+            console.log('Today (NY):', todayKey);
+            console.log('Yesterday (NY):', yesterdayKey);
             
             // First, load all existing entries
             for (let i = 0; i < localStorage.length; i++) {
@@ -108,11 +113,19 @@
             
             const oldestDate = dates[0];
             
-            // Get yesterday's date in NY timezone
-            const yesterdayKey = getYesterdayInNY();
+            // Debug logging for date range
+            console.log('Oldest date:', oldestDate);
+            console.log('Yesterday key:', yesterdayKey);
             
-            // Use the later of: newest existing entry date or yesterday
-            const newestDate = dates[dates.length - 1] > yesterdayKey ? dates[dates.length - 1] : yesterdayKey;
+            // The newest date should NEVER be after yesterday
+            // Filter out any existing entries that are after yesterday
+            const validDates = dates.filter(date => date <= yesterdayKey);
+            if (validDates.length === 0) {
+                return [];
+            }
+            
+            // Use yesterday as the end date, regardless of existing entries
+            const newestDate = yesterdayKey;
             
             // Generate all dates in range
             const allDates = getDateRange(oldestDate, newestDate);
