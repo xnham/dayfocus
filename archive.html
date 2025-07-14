@@ -87,7 +87,14 @@
             }
             
             const oldestDate = dates[0];
-            const newestDate = dates[dates.length - 1];
+            
+            // Get yesterday's date in NY timezone
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayKey = new Date(yesterday.toLocaleString("en-US", {timeZone: "America/New_York"})).toISOString().split('T')[0];
+            
+            // Use the later of: newest existing entry date or yesterday
+            const newestDate = dates[dates.length - 1] > yesterdayKey ? dates[dates.length - 1] : yesterdayKey;
             
             // Generate all dates in range
             const allDates = getDateRange(oldestDate, newestDate);
