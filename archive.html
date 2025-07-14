@@ -25,8 +25,25 @@
         // Get current date in America/New_York timezone
         function getCurrentDateInNY() {
             const now = new Date();
+            // Create a date object in NY timezone
             const nyDate = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-            return nyDate.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+            // Get the date components in NY timezone
+            const year = nyDate.getFullYear();
+            const month = String(nyDate.getMonth() + 1).padStart(2, '0');
+            const day = String(nyDate.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Get yesterday's date in America/New_York timezone
+        function getYesterdayInNY() {
+            const now = new Date();
+            const nyDate = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            // Subtract one day
+            nyDate.setDate(nyDate.getDate() - 1);
+            const year = nyDate.getFullYear();
+            const month = String(nyDate.getMonth() + 1).padStart(2, '0');
+            const day = String(nyDate.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         // Format date nicely
@@ -89,9 +106,7 @@
             const oldestDate = dates[0];
             
             // Get yesterday's date in NY timezone
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayKey = new Date(yesterday.toLocaleString("en-US", {timeZone: "America/New_York"})).toISOString().split('T')[0];
+            const yesterdayKey = getYesterdayInNY();
             
             // Use the later of: newest existing entry date or yesterday
             const newestDate = dates[dates.length - 1] > yesterdayKey ? dates[dates.length - 1] : yesterdayKey;
