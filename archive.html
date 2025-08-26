@@ -75,10 +75,24 @@
             return dates;
         }
         
-        // Format goals array as HTML bullet list
+        // Format goals array as HTML bullet list (only for multiple items)
         function formatGoalsAsHTML(goals) {
-            const listItems = goals
-                .filter(goal => goal.text && goal.text.trim()) // Only include goals with text
+            const filteredGoals = goals.filter(goal => goal.text && goal.text.trim());
+            
+            if (filteredGoals.length === 0) {
+                return null;
+            }
+            
+            // If only one item, return it without bullet points
+            if (filteredGoals.length === 1) {
+                const goal = filteredGoals[0];
+                const className = goal.completed ? 'completed-goal' : '';
+                const text = goal.text.trim();
+                return `<div class="goals-list-archive single-item ${className}">${text}</div>`;
+            }
+            
+            // Multiple items - use bullet points
+            const listItems = filteredGoals
                 .map(goal => {
                     const className = goal.completed ? 'completed-goal' : '';
                     const text = goal.text.trim();
@@ -86,7 +100,7 @@
                 })
                 .join('');
             
-            return listItems ? `<ul class="goals-list-archive">${listItems}</ul>` : null;
+            return `<ul class="goals-list-archive">${listItems}</ul>`;
         }
         
         // Migrate old motivation entries to new goals format
