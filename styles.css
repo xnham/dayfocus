@@ -86,10 +86,9 @@ h1 {
     gap: 12px;
     padding: 0;
     margin-bottom: 8px;
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
     transition: all 0.3s ease;
     animation: slideIn 0.3s ease-out;
+    position: relative;
 }
 
 .goal-item:hover {
@@ -101,38 +100,49 @@ h1 {
     opacity: 0.7;
 }
 
-/* Goal Checkbox */
-.goal-checkbox {
-    width: 18px;
-    height: 18px;
-    line-height: 1.4;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    border: 1px solid #333;
-    border-radius: 4px;
-    background-color: transparent;
-    position: relative;
+/* Goal Drag Handle */
+.goal-drag-handle {
+    color: #bbb;
+    cursor: grab;
+    font-size: 14px;
+    line-height: 1;
+    padding: 4px;
+    opacity: 0;
     transition: all 0.2s ease;
     flex-shrink: 0;
-    margin-bottom: 8px;
-}
-
-.goal-checkbox:checked {
-    background-color: #333;
-    border-color: #333;
-}
-
-.goal-checkbox:checked::after {
-    content: '✔';
-    color: white;
-    font-size: 12px;
+    user-select: none;
     font-weight: bold;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    line-height: 1;
+    letter-spacing: -2px;
+}
+
+.goal-drag-handle:active {
+    cursor: grabbing;
+}
+
+.goal-item:hover .goal-drag-handle {
+    opacity: 1;
+}
+
+/* Goal Checkbox */
+.goal-checkbox {
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.goal-checkbox:hover {
+    transform: scale(1.1);
+}
+
+.goal-checkbox.fa-square {
+    color: #666;
+}
+
+.goal-checkbox.fa-square-check {
+    color: #333;
 }
 
 /* Goal Text */
@@ -146,13 +156,13 @@ h1 {
     word-wrap: break-word;
     overflow-wrap: break-word;
     outline: none;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid rgba(51, 51, 51, 0.3);
     padding: 2px 4px;
     transition: all 0.2s ease;
 }
 
 .goal-text:focus {
-    border-color: rgba(51, 51, 51, 0.3);
+    border-color: rgba(51, 51, 51, 0.8);
     background-color: rgba(255, 255, 255, 0.8);
 }
 
@@ -165,7 +175,42 @@ h1 {
 .goal-delete {
     background: none;
     border: none;
-    color: #999;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    opacity: 0;
+    flex-shrink: 0;
+}
+
+.goal-delete i {
+    margin-top: 1px;
+    color: #ddd;
+    transition: all 0.2s ease;
+}
+
+.goal-delete:hover i {
+    color: #f44336;
+}
+
+.goal-item:hover .goal-delete {
+    opacity: 1;
+}
+
+.goal-item:only-child .goal-delete {
+    display: none;
+}
+
+/* Goal Star Button */
+.goal-star {
+    background: none;
+    border: none;
     cursor: pointer;
     font-size: 16px;
     padding: 0;
@@ -180,23 +225,49 @@ h1 {
     flex-shrink: 0;
 }
 
-.goal-delete:hover {
-    background-color: rgba(244, 67, 54, 0.1);
-    color: #f44336;
+.goal-star i {
+    color: #ddd;
+    transition: all 0.2s ease;
 }
 
-.goal-item:hover .goal-delete {
+.goal-star:hover i {
+    color: #ffc107;
+}
+
+.goal-star.starred i {
+    color: #ffc107;
+}
+
+.goal-star.starred {
     opacity: 1;
 }
 
-.goal-item:only-child .goal-delete {
-    display: none;
+.goal-item:hover .goal-star {
+    opacity: 1;
+}
+
+/* Drag and Drop States */
+.goal-item.dragging {
+    opacity: 0.5;
+    z-index: 1000;
+}
+
+.goal-item.drag-over-top {
+    border-top: 3px solid #333;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.goal-item.drag-over-bottom {
+    border-bottom: 3px solid #333;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 /* Add Item Button */
 .add-item-btn {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     background-color: rgba(200, 200, 200, 0.3);
     color: #7c7c7c;
     border: none;
@@ -212,7 +283,8 @@ h1 {
 }
 
 .add-item-btn:hover {
-    background-color: #555;
+    background-color: #333;
+    color: #ffffff;
     transform: scale(1.05);
 }
 

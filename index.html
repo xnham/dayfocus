@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dayfocus</title>
     <link rel="icon" type="image/png" href="focus.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -62,7 +63,13 @@
             const todayKey = getTodayKey();
             const savedGoals = localStorage.getItem(`goals-${todayKey}`);
             try {
-                return savedGoals ? JSON.parse(savedGoals) : [];
+                let goals = savedGoals ? JSON.parse(savedGoals) : [];
+                // Ensure backward compatibility - add starred property if missing
+                goals = goals.map(goal => ({
+                    ...goal,
+                    starred: goal.starred || false
+                }));
+                return goals;
             } catch (e) {
                 console.error('Error parsing saved goals:', e);
                 return [];
@@ -99,22 +106,31 @@
         // Create a new goal item element
         function createGoalElement(goal) {
             const goalItem = document.createElement('div');
-            goalItem.className = 'goal-item' + (goal.completed ? ' completed' : '');
+            goalItem.className = 'goal-item' + (goal.completed ? ' completed' : '') + (goal.starred ? ' starred' : '');
             goalItem.dataset.goalId = goal.id;
+            goalItem.draggable = true;
             
             goalItem.innerHTML = `
-                <input type="checkbox" class="goal-checkbox" ${goal.completed ? 'checked' : ''} />
+                <div class="goal-drag-handle" title="Drag to reorder">⋮⋮</div>
+                <i class="goal-checkbox ${goal.completed ? 'fa-solid fa-square-check' : 'fa-regular fa-square'}" title="Toggle completion"></i>
                 <div class="goal-text" contenteditable="true">${goal.text}</div>
-                <button type="button" class="goal-delete" title="Delete goal">×</button>
+                <button type="button" class="goal-star ${goal.starred ? 'starred' : ''}" title="Star goal"><i class="fa-solid fa-star"></i></button>
+                <button type="button" class="goal-delete" title="Delete goal"><i class="fa-solid fa-trash"></i></button>
             `;
             
             // Add event listeners
             const checkbox = goalItem.querySelector('.goal-checkbox');
+            const starBtn = goalItem.querySelector('.goal-star');
             const deleteBtn = goalItem.querySelector('.goal-delete');
             const goalText = goalItem.querySelector('.goal-text');
+            const dragHandle = goalItem.querySelector('.goal-drag-handle');
             
-            checkbox.addEventListener('change', function() {
-                toggleGoal(goal.id, this.checked);
+            checkbox.addEventListener('click', function() {
+                toggleGoal(goal.id, !goal.completed);
+            });
+            
+            starBtn.addEventListener('click', function() {
+                toggleStarred(goal.id);
             });
             
             deleteBtn.addEventListener('click', function() {
@@ -133,6 +149,50 @@
                 }
             });
             
+            // Drag and drop event listeners
+            goalItem.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', goal.id);
+                goalItem.classList.add('dragging');
+            });
+            
+            goalItem.addEventListener('dragend', function(e) {
+                goalItem.classList.remove('dragging');
+            });
+            
+            goalItem.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                const draggingElement = document.querySelector('.dragging');
+                if (draggingElement && draggingElement !== goalItem) {
+                    const rect = goalItem.getBoundingClientRect();
+                    const midpoint = rect.top + rect.height / 2;
+                    if (e.clientY < midpoint) {
+                        goalItem.classList.add('drag-over-top');
+                        goalItem.classList.remove('drag-over-bottom');
+                    } else {
+                        goalItem.classList.add('drag-over-bottom');
+                        goalItem.classList.remove('drag-over-top');
+                    }
+                }
+            });
+            
+            goalItem.addEventListener('dragleave', function(e) {
+                goalItem.classList.remove('drag-over-top', 'drag-over-bottom');
+            });
+            
+            goalItem.addEventListener('drop', function(e) {
+                e.preventDefault();
+                goalItem.classList.remove('drag-over-top', 'drag-over-bottom');
+                const draggedGoalId = parseInt(e.dataTransfer.getData('text/plain'));
+                const targetGoalId = goal.id;
+                
+                if (draggedGoalId !== targetGoalId) {
+                    const rect = goalItem.getBoundingClientRect();
+                    const midpoint = rect.top + rect.height / 2;
+                    const insertAfter = e.clientY >= midpoint;
+                    reorderGoals(draggedGoalId, targetGoalId, insertAfter);
+                }
+            });
+            
             return goalItem;
         }
 
@@ -141,7 +201,8 @@
             const goal = {
                 id: nextGoalId++,
                 text: text.trim(),
-                completed: false
+                completed: false,
+                starred: false
             };
             
             goals.push(goal);
@@ -168,6 +229,43 @@
             }
         }
 
+        // Toggle goal starred status
+        function toggleStarred(goalId) {
+            const goal = goals.find(g => g.id === goalId);
+            if (goal) {
+                goal.starred = !goal.starred;
+                renderGoals();
+                saveTodayGoals();
+            }
+        }
+
+        // Reorder goals by moving one goal relative to another
+        function reorderGoals(draggedGoalId, targetGoalId, insertAfter) {
+            const draggedIndex = goals.findIndex(g => g.id === draggedGoalId);
+            const targetIndex = goals.findIndex(g => g.id === targetGoalId);
+            
+            if (draggedIndex === -1 || targetIndex === -1) return;
+            
+            // Remove the dragged goal from its current position
+            const draggedGoal = goals.splice(draggedIndex, 1)[0];
+            
+            // Calculate new insertion position
+            let newIndex = targetIndex;
+            if (draggedIndex < targetIndex) {
+                // If dragging down, adjust for the removal
+                newIndex--;
+            }
+            if (insertAfter) {
+                newIndex++;
+            }
+            
+            // Insert the dragged goal at its new position
+            goals.splice(newIndex, 0, draggedGoal);
+            
+            renderGoals();
+            saveTodayGoals();
+        }
+
         // Delete a goal
         function deleteGoal(goalId) {
             // Don't allow deletion of the last goal
@@ -188,7 +286,8 @@
                 const defaultGoal = {
                     id: nextGoalId++,
                     text: '',
-                    completed: false
+                    completed: false,
+                    starred: false
                 };
                 goals.push(defaultGoal);
             }
@@ -222,7 +321,8 @@
                         const goalsArray = [{
                             id: 1,
                             text: motivationText.trim(),
-                            completed: false
+                            completed: false,
+                            starred: false
                         }];
                         
                         // Save as goals entry
