@@ -12,17 +12,15 @@
         <p class="today-is"><span class="date" id="today-date"></span>.</p>
         <h1>What will make today a successful day at work?</h1>
         
-        <div 
-            id="motivation-text" 
-            class="editable-field"
-            contenteditable="true"
-        ></div>
+        <div id="goals-container" class="goals-container">
+            <div id="goals-list" class="goals-list">
+                <!-- Dynamic list items will be added here -->
+            </div>
+            <button type="button" id="add-item-btn" class="add-item-btn">+</button>
+        </div>
+
         
         <div class="bottom-section">
-            <div class="success-checkbox">
-                <input type="checkbox" id="success-checkbox" />
-                <label for="success-checkbox">Success?</label>
-            </div>
             <a href="archive.html" class="link">
                 See Archive →
             </a>
@@ -30,6 +28,9 @@
     </div>
 
     <script>
+        let goals = [];
+        let nextGoalId = 1;
+
         // Get today's date in a nice format using America/New_York timezone
         function getTodayDate() {
             const today = new Date();
@@ -56,30 +57,190 @@
             return formatter.format(today); // Returns YYYY-MM-DD
         }
 
-        // Load saved text for today
-        function loadTodayText() {
+        // Load saved goals for today
+        function loadTodayGoals() {
             const todayKey = getTodayKey();
-            const savedText = localStorage.getItem(`motivation-${todayKey}`);
-            return savedText || '';
+            const savedGoals = localStorage.getItem(`goals-${todayKey}`);
+            try {
+                return savedGoals ? JSON.parse(savedGoals) : [];
+            } catch (e) {
+                console.error('Error parsing saved goals:', e);
+                return [];
+            }
         }
 
-        // Load saved checkbox state for today
-        function loadTodaySuccess() {
-            const todayKey = getTodayKey();
-            const savedSuccess = localStorage.getItem(`success-${todayKey}`);
-            return savedSuccess === 'true';
+        // Calculate success based on goals completion
+        function calculateSuccess() {
+            if (goals.length === 0) {
+                return 'empty'; // No goals added yet
+            }
+            
+            const completedGoals = goals.filter(g => g.completed).length;
+            
+            if (completedGoals === goals.length) {
+                return 'success'; // All goals completed
+            } else {
+                return 'in-progress'; // Some goals remaining
+            }
         }
 
-        // Save text for today
-        function saveTodayText(text) {
+        // Save goals for today
+        function saveTodayGoals() {
             const todayKey = getTodayKey();
-            localStorage.setItem(`motivation-${todayKey}`, text);
+            localStorage.setItem(`goals-${todayKey}`, JSON.stringify(goals));
+            
+            // Also save the automatic success status
+            const successStatus = calculateSuccess();
+            localStorage.setItem(`success-${todayKey}`, (successStatus === 'success').toString());
         }
 
-        // Save checkbox state for today
-        function saveTodaySuccess(isChecked) {
-            const todayKey = getTodayKey();
-            localStorage.setItem(`success-${todayKey}`, isChecked.toString());
+
+
+        // Create a new goal item element
+        function createGoalElement(goal) {
+            const goalItem = document.createElement('div');
+            goalItem.className = 'goal-item' + (goal.completed ? ' completed' : '');
+            goalItem.dataset.goalId = goal.id;
+            
+            goalItem.innerHTML = `
+                <input type="checkbox" class="goal-checkbox" ${goal.completed ? 'checked' : ''} />
+                <div class="goal-text" contenteditable="true">${goal.text}</div>
+                <button type="button" class="goal-delete" title="Delete goal">×</button>
+            `;
+            
+            // Add event listeners
+            const checkbox = goalItem.querySelector('.goal-checkbox');
+            const deleteBtn = goalItem.querySelector('.goal-delete');
+            const goalText = goalItem.querySelector('.goal-text');
+            
+            checkbox.addEventListener('change', function() {
+                toggleGoal(goal.id, this.checked);
+            });
+            
+            deleteBtn.addEventListener('click', function() {
+                deleteGoal(goal.id);
+            });
+
+            // Auto-save on text edit
+            goalText.addEventListener('blur', function() {
+                updateGoalText(goal.id, this.textContent.trim());
+            });
+
+            goalText.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.blur();
+                }
+            });
+            
+            return goalItem;
+        }
+
+        // Add a new goal
+        function addGoal(text) {
+            const goal = {
+                id: nextGoalId++,
+                text: text.trim(),
+                completed: false
+            };
+            
+            goals.push(goal);
+            renderGoals();
+            saveTodayGoals();
+        }
+
+        // Toggle goal completion
+        function toggleGoal(goalId, completed) {
+            const goal = goals.find(g => g.id === goalId);
+            if (goal) {
+                goal.completed = completed;
+                renderGoals();
+                saveTodayGoals();
+            }
+        }
+
+        // Update goal text
+        function updateGoalText(goalId, newText) {
+            const goal = goals.find(g => g.id === goalId);
+            if (goal && goal.text !== newText) {
+                goal.text = newText;
+                saveTodayGoals();
+            }
+        }
+
+        // Delete a goal
+        function deleteGoal(goalId) {
+            // Don't allow deletion of the last goal
+            if (goals.length > 1) {
+                goals = goals.filter(g => g.id !== goalId);
+                renderGoals();
+                saveTodayGoals();
+            }
+        }
+
+        // Render all goals
+        function renderGoals() {
+            const goalsList = document.getElementById('goals-list');
+            goalsList.innerHTML = '';
+            
+            // Ensure there's always at least one goal item
+            if (goals.length === 0) {
+                const defaultGoal = {
+                    id: nextGoalId++,
+                    text: '',
+                    completed: false
+                };
+                goals.push(defaultGoal);
+            }
+            
+            goals.forEach(goal => {
+                const goalElement = createGoalElement(goal);
+                goalsList.appendChild(goalElement);
+            });
+        }
+
+        // Handle adding new goal
+        function handleAddGoal() {
+            addGoal('');
+        }
+
+        // Migrate old motivation entries to new goals format
+        function migrateMotivationEntries() {
+            let migrationCount = 0;
+            const keysToRemove = [];
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('motivation-')) {
+                    const dateStr = key.replace('motivation-', '');
+                    const motivationText = localStorage.getItem(key);
+                    
+                    // Check if goals entry already exists for this date
+                    const goalsKey = `goals-${dateStr}`;
+                    if (!localStorage.getItem(goalsKey) && motivationText && motivationText.trim()) {
+                        // Convert motivation text to goals array format
+                        const goalsArray = [{
+                            id: 1,
+                            text: motivationText.trim(),
+                            completed: false
+                        }];
+                        
+                        // Save as goals entry
+                        localStorage.setItem(goalsKey, JSON.stringify(goalsArray));
+                        keysToRemove.push(key);
+                        migrationCount++;
+                        
+                        console.log(`Migrated motivation entry for ${dateStr}: "${motivationText.trim()}"`);
+                    }
+                }
+            }
+            
+            // Remove old motivation entries after successful migration
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+            
+            if (migrationCount > 0) {
+                console.log(`Migration completed: ${migrationCount} motivation entries converted to goals format`);
+            }
         }
 
         // Clean up old entries (optional - keeps storage clean)
@@ -89,8 +250,8 @@
             
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (key && key.startsWith('motivation-')) {
-                    const dateStr = key.replace('motivation-', '');
+                if (key && key.startsWith('goals-')) {
+                    const dateStr = key.replace('goals-', '');
                     const entryDate = new Date(dateStr);
                     if (entryDate < thirtyDaysAgo) {
                         localStorage.removeItem(key);
@@ -102,70 +263,23 @@
 
         // Initialize the page
         function init() {
+            // Run migration first
+            migrateMotivationEntries();
+            
             // Set today's date
             document.getElementById('today-date').textContent = getTodayDate();
             
-            // Load and display saved text
-            const editableField = document.getElementById('motivation-text');
-            const savedText = loadTodayText();
-            editableField.innerHTML = savedText;
+            // Load saved goals
+            goals = loadTodayGoals();
+            nextGoalId = goals.length > 0 ? Math.max(...goals.map(g => g.id)) + 1 : 1;
+            renderGoals();
             
-            // Load and set checkbox state
-            const successCheckbox = document.getElementById('success-checkbox');
-            const savedSuccess = loadTodaySuccess();
-            successCheckbox.checked = savedSuccess;
-            
-            // Handle placeholder visibility
-            function updatePlaceholder() {
-                if (editableField.textContent.trim() === '') {
-                    editableField.classList.add('empty');
-                } else {
-                    editableField.classList.remove('empty');
-                }
-            }
-            
-            // Initial placeholder check
-            updatePlaceholder();
-            
-            // Focus the editable field on page load
-            editableField.focus();
-            
-            // Save text as user types (with debouncing)
-            let saveTimeout;
-            function handleInput() {
-                clearTimeout(saveTimeout);
-                updatePlaceholder();
-                saveTimeout = setTimeout(() => {
-                    saveTodayText(editableField.innerHTML);
-                    showSaveIndicator();
-                }, 500);
-            }
-            
-            editableField.addEventListener('input', handleInput);
-            editableField.addEventListener('blur', handleInput);
-            
-            // Save checkbox state when changed
-            successCheckbox.addEventListener('change', function() {
-                saveTodaySuccess(this.checked);
-                showSaveIndicator();
-            });
+            // Set up event listeners
+            const addBtn = document.getElementById('add-item-btn');
+            addBtn.addEventListener('click', handleAddGoal);
             
             // Clean up old entries
             cleanupOldEntries();
-        }
-
-        // Show save indicator briefly
-        function showSaveIndicator() {
-            const indicator = document.getElementById('save-indicator');
-            if (indicator) {
-                indicator.style.opacity = '1';
-                indicator.textContent = '✓ Saved';
-                
-                setTimeout(() => {
-                    indicator.style.opacity = '0.8';
-                    indicator.textContent = 'Your answer is automatically saved';
-                }, 2000);
-            }
         }
 
         // Initialize when page loads

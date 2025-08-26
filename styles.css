@@ -1,4 +1,4 @@
-/* ===== FONTS ===== */
+/* ===== IMPORTS ===== */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
@@ -19,13 +19,14 @@ body {
     justify-content: center;
 }
 
+/* ===== TYPOGRAPHY ===== */
 h1 {
     text-align: center;
     font-size: 20px;
     font-weight: 300;
     line-height: 1.2;
     margin-top: 0;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .link {
@@ -49,42 +50,6 @@ h1 {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* ===== MAIN PAGE COMPONENTS ===== */
-.today-is {
-    text-align: center;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.2;
-    margin-bottom: 20px;
-}
-
-.editable-field {
-    width: 100%;
-    padding: 8px;
-    font-size: 20px;
-    font-family: 'Courier Prime', monospace;
-    font-weight: 400;
-    color: #333;
-    box-sizing: border-box;
-    outline: none;
-    transition: all 0.3s ease;
-    text-align: center;
-    line-height: 1.5;
-    margin: 0 auto;
-    position: relative;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    border-bottom: 1px solid #333;
-}
-
-.save-indicator {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 14px;
-    opacity: 0.8;
-    min-height: 20px;
-}
-
 .bottom-section {
     display: flex;
     justify-content: space-between;
@@ -93,46 +58,165 @@ h1 {
     width: 100%;
 }
 
-.success-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+/* ===== MAIN PAGE COMPONENTS ===== */
+.today-is {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-bottom: 10px;
 }
 
-.success-checkbox input[type="checkbox"] {
-    margin: 0;
-    width: 16px;
-    height: 16px;
+/* Goals Container */
+.goals-container {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.goals-list {
+    min-height: 40px;
+}
+
+/* Goal Items */
+.goal-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+    margin-bottom: 8px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    animation: slideIn 0.3s ease-out;
+}
+
+.goal-item:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.goal-item.completed .goal-text {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+/* Goal Checkbox */
+.goal-checkbox {
+    width: 18px;
+    height: 18px;
+    line-height: 1.4;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
     border: 1px solid #333;
-    border-radius: 3px;
+    border-radius: 4px;
     background-color: transparent;
     position: relative;
     transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin-bottom: 8px;
 }
 
-.success-checkbox input[type="checkbox"]:checked {
+.goal-checkbox:checked {
     background-color: #333;
     border-color: #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.success-checkbox input[type="checkbox"]:checked::after {
+.goal-checkbox:checked::after {
     content: '✔';
     color: white;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: bold;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     line-height: 1;
 }
 
-.success-checkbox label {
-    font-size: 14px;
+/* Goal Text */
+.goal-text {
+    flex: 1;
+    font-size: 20px;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 400;
+    color: #333;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    outline: none;
+    border-bottom: 1px solid #333;
+    padding: 2px 4px;
+    transition: all 0.2s ease;
+}
+
+.goal-text:focus {
+    border-color: rgba(51, 51, 51, 0.3);
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.goal-text:empty::before {
+    content: "";
+    color: #999;
+}
+
+/* Goal Delete Button */
+.goal-delete {
+    background: none;
+    border: none;
+    color: #999;
     cursor: pointer;
-    user-select: none;
+    font-size: 16px;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    opacity: 0;
+    flex-shrink: 0;
+}
+
+.goal-delete:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.goal-item:hover .goal-delete {
+    opacity: 1;
+}
+
+.goal-item:only-child .goal-delete {
+    display: none;
+}
+
+/* Add Item Button */
+.add-item-btn {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(200, 200, 200, 0.3);
+    color: #7c7c7c;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto 0;
+}
+
+.add-item-btn:hover {
+    background-color: #555;
+    transform: scale(1.05);
+}
+
+.add-item-btn:active {
+    transform: scale(0.95);
 }
 
 /* ===== ARCHIVE PAGE STYLES ===== */
@@ -141,6 +225,7 @@ h1 {
     margin-bottom: 20px;
 }
 
+/* Archive Entry Layout */
 .entry-row {
     width: 700px;
     display: grid;
@@ -161,6 +246,7 @@ h1 {
     text-align: center;
 }
 
+/* Success Toggle Buttons */
 .success-toggle {
     background: none;
     border: 1px solid;
@@ -206,6 +292,7 @@ h1 {
     cursor: not-allowed;
 }
 
+/* Success Status Display */
 .success-status {
     padding: 4px 8px;
     border-radius: 4px;
@@ -225,6 +312,24 @@ h1 {
     color: white;
 }
 
+/* Archive Goals List Styling */
+.goals-list-archive {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.goals-list-archive li {
+    margin-bottom: 4px;
+}
+
+.goals-list-archive li.completed-goal {
+    text-decoration: line-through;
+    opacity: 0.7;
+    color: #666;
+}
+
 /* ===== ANIMATIONS ===== */
 .fade-in {
     animation: fadeIn 0.5s ease-in;
@@ -233,4 +338,15 @@ h1 {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
-} 
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

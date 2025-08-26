@@ -75,6 +75,59 @@
             return dates;
         }
         
+        // Format goals array as HTML bullet list
+        function formatGoalsAsHTML(goals) {
+            const listItems = goals
+                .filter(goal => goal.text && goal.text.trim()) // Only include goals with text
+                .map(goal => {
+                    const className = goal.completed ? 'completed-goal' : '';
+                    const text = goal.text.trim();
+                    return `<li class="${className}">${text}</li>`;
+                })
+                .join('');
+            
+            return listItems ? `<ul class="goals-list-archive">${listItems}</ul>` : null;
+        }
+        
+        // Migrate old motivation entries to new goals format
+        function migrateMotivationEntries() {
+            let migrationCount = 0;
+            const keysToRemove = [];
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('motivation-')) {
+                    const dateStr = key.replace('motivation-', '');
+                    const motivationText = localStorage.getItem(key);
+                    
+                    // Check if goals entry already exists for this date
+                    const goalsKey = `goals-${dateStr}`;
+                    if (!localStorage.getItem(goalsKey) && motivationText && motivationText.trim()) {
+                        // Convert motivation text to goals array format
+                        const goalsArray = [{
+                            id: 1,
+                            text: motivationText.trim(),
+                            completed: false
+                        }];
+                        
+                        // Save as goals entry
+                        localStorage.setItem(goalsKey, JSON.stringify(goalsArray));
+                        keysToRemove.push(key);
+                        migrationCount++;
+                        
+                        console.log(`Migrated motivation entry for ${dateStr}: "${motivationText.trim()}"`);
+                    }
+                }
+            }
+            
+            // Remove old motivation entries after successful migration
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+            
+            if (migrationCount > 0) {
+                console.log(`Migration completed: ${migrationCount} motivation entries converted to goals format`);
+            }
+        }
+
         // Load all entries from localStorage, filling in missing days
         function loadAllEntries() {
             const existingEntries = {};
@@ -88,17 +141,30 @@
             // First, load all existing entries
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (key && key.startsWith('motivation-')) {
-                    const dateStr = key.replace('motivation-', '');
-                    const text = localStorage.getItem(key);
+                if (key && key.startsWith('goals-')) {
+                    const dateStr = key.replace('goals-', '');
+                    const goalsData = localStorage.getItem(key);
                     const successKey = `success-${dateStr}`;
                     const successValue = localStorage.getItem(successKey);
                     
                     // Only include entries from previous days (not today)
                     if (dateStr !== todayKey) {
+                        let formattedText = null;
+                        if (goalsData && goalsData.trim()) {
+                            try {
+                                const goals = JSON.parse(goalsData);
+                                if (Array.isArray(goals) && goals.length > 0) {
+                                    formattedText = formatGoalsAsHTML(goals);
+                                }
+                            } catch (e) {
+                                console.error('Error parsing goals data:', e);
+                                formattedText = goalsData; // Fallback to raw text
+                            }
+                        }
+                        
                         existingEntries[dateStr] = {
                             date: dateStr,
-                            text: text && text.trim() ? text : null,
+                            text: formattedText,
                             success: successValue === 'true' ? 'success' : 'fail'
                         };
                     }
@@ -192,6 +258,8 @@
         
         // Load and display all entries
         function loadAndDisplayEntries() {
+            // Run migration before loading entries
+            migrateMotivationEntries();
             const entries = loadAllEntries();
             displayEntries(entries);
         }
