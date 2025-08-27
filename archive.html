@@ -88,7 +88,8 @@
                 const goal = filteredGoals[0];
                 const className = goal.completed ? 'completed-goal' : '';
                 const text = goal.text.trim();
-                return `<div class="goals-list-archive single-item ${className}">${text}</div>`;
+                const starredIndicator = goal.starred ? ' <i class="fa-solid fa-star archive-star"></i>' : '';
+                return `<div class="goals-list-archive single-item ${className}">${text}${starredIndicator}</div>`;
             }
             
             // Multiple items - use bullet points
@@ -96,7 +97,8 @@
                 .map(goal => {
                     const className = goal.completed ? 'completed-goal' : '';
                     const text = goal.text.trim();
-                    return `<li class="${className}">${text}</li>`;
+                    const starredIndicator = goal.starred ? ' <i class="fa-solid fa-star archive-star"></i>' : '';
+                    return `<li class="${className}">${text}${starredIndicator}</li>`;
                 })
                 .join('');
             

@@ -414,6 +414,13 @@ h1 {
     color: #666;
 }
 
+/* Archive star styling */
+.archive-star {
+    color: #ffc107;
+    font-size: 12px;
+    margin-left: 4px;
+}
+
 /* ===== ANIMATIONS ===== */
 .fade-in {
     animation: fadeIn 0.5s ease-in;
