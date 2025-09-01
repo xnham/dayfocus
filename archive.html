@@ -21,6 +21,33 @@
         </div>
     </div>
 
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Edit Goals for [Date]</h2>
+                <button class="close-modal" onclick="closeEditModal()">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="modal-goals-container" class="goals-container">
+                    <div id="modal-goals-list" class="goals-list">
+                        <!-- Dynamic list items will be added here -->
+                    </div>
+                    <button type="button" id="modal-add-item-btn" class="add-item-btn">+</button>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveAndCloseModal()">Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-overlay" class="modal-overlay" style="display: none;" onclick="closeEditModal()"></div>
+
     <script>
         // Get current date in America/New_York timezone
         function getCurrentDateInNY() {
@@ -263,6 +290,11 @@
                     <div class="entry-text-column ${entry.isEmpty ? 'empty-text' : ''}">
                         ${entry.text}
                     </div>
+                    <div class="entry-edit-column">
+                        <button class="edit-entry-btn" ${entry.isEmpty ? 'disabled' : `onclick="openEditModal('${entry.date}')"`} title="Edit entry">
+                            <i class="fa-regular fa-edit"></i>
+                        </button>
+                    </div>
                     <div class="entry-success-column">
                         <button class="success-toggle ${entry.success}" ${entry.isEmpty ? '' : `onclick="toggleSuccess('${entry.date}')"`}>
                             ${entry.success.toUpperCase()}
@@ -285,6 +317,302 @@
             loadAndDisplayEntries();
         }
         
+        // Modal editing functionality
+        let modalGoals = [];
+        let modalNextGoalId = 1;
+        let currentEditDate = null;
+
+        // Parse HTML goals back to object format
+        function parseGoalsFromHTML(htmlText) {
+            if (!htmlText || htmlText === 'No entry') {
+                return [];
+            }
+            
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            const goals = [];
+            let goalId = 1;
+            
+            // Handle single item format
+            const singleItem = doc.querySelector('.goals-list-archive.single-item');
+            if (singleItem) {
+                const text = singleItem.textContent.replace(/\s*★\s*$/, '').trim();
+                const starred = singleItem.querySelector('.archive-star') !== null;
+                const completed = singleItem.classList.contains('completed-goal');
+                
+                goals.push({
+                    id: goalId++,
+                    text: text,
+                    completed: completed,
+                    starred: starred
+                });
+            } else {
+                // Handle list format
+                const listItems = doc.querySelectorAll('.goals-list-archive li');
+                listItems.forEach(li => {
+                    const text = li.textContent.replace(/\s*★\s*$/, '').trim();
+                    const starred = li.querySelector('.archive-star') !== null;
+                    const completed = li.classList.contains('completed-goal');
+                    
+                    goals.push({
+                        id: goalId++,
+                        text: text,
+                        completed: completed,
+                        starred: starred
+                    });
+                });
+            }
+            
+            return goals;
+        }
+
+        // Create a goal element for the modal (adapted from main page)
+        function createModalGoalElement(goal) {
+            const goalItem = document.createElement('div');
+            goalItem.className = 'goal-item' + (goal.completed ? ' completed' : '') + (goal.starred ? ' starred' : '');
+            goalItem.dataset.goalId = goal.id;
+            goalItem.draggable = true;
+            
+            goalItem.innerHTML = `
+                <div class="goal-drag-handle" title="Drag to reorder">⋮⋮</div>
+                <i class="goal-checkbox ${goal.completed ? 'fa-solid fa-square-check' : 'fa-regular fa-square'}" title="Toggle completion"></i>
+                <div class="goal-text" contenteditable="true">${goal.text}</div>
+                <button type="button" class="goal-star ${goal.starred ? 'starred' : ''}" title="Star goal"><i class="fa-solid fa-star"></i></button>
+                <button type="button" class="goal-delete" title="Delete goal"><i class="fa-solid fa-trash"></i></button>
+            `;
+            
+            // Add event listeners
+            const checkbox = goalItem.querySelector('.goal-checkbox');
+            const starBtn = goalItem.querySelector('.goal-star');
+            const deleteBtn = goalItem.querySelector('.goal-delete');
+            const goalText = goalItem.querySelector('.goal-text');
+            
+            checkbox.addEventListener('click', function() {
+                toggleModalGoal(goal.id, !goal.completed);
+            });
+            
+            starBtn.addEventListener('click', function() {
+                toggleModalStarred(goal.id);
+            });
+            
+            deleteBtn.addEventListener('click', function() {
+                deleteModalGoal(goal.id);
+            });
+
+            goalText.addEventListener('blur', function() {
+                updateModalGoalText(goal.id, this.textContent.trim());
+            });
+
+            goalText.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.blur();
+                }
+            });
+            
+            // Drag and drop functionality (simplified for modal)
+            goalItem.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', goal.id);
+                goalItem.classList.add('dragging');
+            });
+            
+            goalItem.addEventListener('dragend', function(e) {
+                goalItem.classList.remove('dragging');
+            });
+            
+            goalItem.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                const draggingElement = document.querySelector('.dragging');
+                if (draggingElement && draggingElement !== goalItem) {
+                    const rect = goalItem.getBoundingClientRect();
+                    const midpoint = rect.top + rect.height / 2;
+                    if (e.clientY < midpoint) {
+                        goalItem.classList.add('drag-over-top');
+                        goalItem.classList.remove('drag-over-bottom');
+                    } else {
+                        goalItem.classList.add('drag-over-bottom');
+                        goalItem.classList.remove('drag-over-top');
+                    }
+                }
+            });
+            
+            goalItem.addEventListener('dragleave', function(e) {
+                goalItem.classList.remove('drag-over-top', 'drag-over-bottom');
+            });
+            
+            goalItem.addEventListener('drop', function(e) {
+                e.preventDefault();
+                goalItem.classList.remove('drag-over-top', 'drag-over-bottom');
+                const draggedGoalId = parseInt(e.dataTransfer.getData('text/plain'));
+                const targetGoalId = goal.id;
+                
+                if (draggedGoalId !== targetGoalId) {
+                    const rect = goalItem.getBoundingClientRect();
+                    const midpoint = rect.top + rect.height / 2;
+                    const insertAfter = e.clientY >= midpoint;
+                    reorderModalGoals(draggedGoalId, targetGoalId, insertAfter);
+                }
+            });
+            
+            return goalItem;
+        }
+
+        // Modal goal manipulation functions
+        function addModalGoal(text) {
+            const goal = {
+                id: modalNextGoalId++,
+                text: text.trim(),
+                completed: false,
+                starred: false
+            };
+            
+            modalGoals.push(goal);
+            renderModalGoals();
+        }
+
+        function toggleModalGoal(goalId, completed) {
+            const goal = modalGoals.find(g => g.id === goalId);
+            if (goal) {
+                goal.completed = completed;
+                renderModalGoals();
+            }
+        }
+
+        function updateModalGoalText(goalId, newText) {
+            const goal = modalGoals.find(g => g.id === goalId);
+            if (goal && goal.text !== newText) {
+                goal.text = newText;
+            }
+        }
+
+        function toggleModalStarred(goalId) {
+            const goal = modalGoals.find(g => g.id === goalId);
+            if (goal) {
+                goal.starred = !goal.starred;
+                renderModalGoals();
+            }
+        }
+
+        function deleteModalGoal(goalId) {
+            if (modalGoals.length > 1) {
+                modalGoals = modalGoals.filter(g => g.id !== goalId);
+                renderModalGoals();
+            }
+        }
+
+        function reorderModalGoals(draggedGoalId, targetGoalId, insertAfter) {
+            const draggedIndex = modalGoals.findIndex(g => g.id === draggedGoalId);
+            const targetIndex = modalGoals.findIndex(g => g.id === targetGoalId);
+            
+            if (draggedIndex === -1 || targetIndex === -1) return;
+            
+            const draggedGoal = modalGoals.splice(draggedIndex, 1)[0];
+            
+            let newIndex = targetIndex;
+            if (draggedIndex < targetIndex) {
+                newIndex--;
+            }
+            if (insertAfter) {
+                newIndex++;
+            }
+            
+            modalGoals.splice(newIndex, 0, draggedGoal);
+            renderModalGoals();
+        }
+
+        function renderModalGoals() {
+            const goalsList = document.getElementById('modal-goals-list');
+            goalsList.innerHTML = '';
+            
+            if (modalGoals.length === 0) {
+                const defaultGoal = {
+                    id: modalNextGoalId++,
+                    text: '',
+                    completed: false,
+                    starred: false
+                };
+                modalGoals.push(defaultGoal);
+            }
+            
+            modalGoals.forEach(goal => {
+                const goalElement = createModalGoalElement(goal);
+                goalsList.appendChild(goalElement);
+            });
+        }
+
+        // Modal control functions
+        function openEditModal(dateStr) {
+            currentEditDate = dateStr;
+            
+            // Get existing goals data
+            const goalsData = localStorage.getItem(`goals-${dateStr}`);
+            if (goalsData) {
+                try {
+                    modalGoals = JSON.parse(goalsData);
+                    modalGoals = modalGoals.map(goal => ({
+                        ...goal,
+                        starred: goal.starred || false
+                    }));
+                } catch (e) {
+                    console.error('Error parsing goals data:', e);
+                    modalGoals = [];
+                }
+            } else {
+                modalGoals = [];
+            }
+            
+            modalNextGoalId = modalGoals.length > 0 ? Math.max(...modalGoals.map(g => g.id)) + 1 : 1;
+            
+            // Update modal title
+            document.getElementById('modal-title').textContent = `Edit Goals for ${formatDate(dateStr)}`;
+            
+            // Render goals
+            renderModalGoals();
+            
+            // Show modal
+            document.getElementById('edit-modal').style.display = 'flex';
+            document.getElementById('modal-overlay').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Setup add button
+            document.getElementById('modal-add-item-btn').onclick = function() {
+                addModalGoal('');
+            };
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentEditDate = null;
+            modalGoals = [];
+        }
+
+        function saveAndCloseModal() {
+            if (currentEditDate && modalGoals.length > 0) {
+                // Filter out empty goals
+                const validGoals = modalGoals.filter(g => g.text && g.text.trim());
+                
+                if (validGoals.length > 0) {
+                    // Save to localStorage
+                    localStorage.setItem(`goals-${currentEditDate}`, JSON.stringify(validGoals));
+                    
+                    // Update success status based on completion
+                    const allCompleted = validGoals.every(g => g.completed);
+                    localStorage.setItem(`success-${currentEditDate}`, allCompleted.toString());
+                } else {
+                    // If no valid goals, remove the entry
+                    localStorage.removeItem(`goals-${currentEditDate}`);
+                    localStorage.removeItem(`success-${currentEditDate}`);
+                }
+                
+                // Refresh the archive display
+                loadAndDisplayEntries();
+            }
+            
+            closeEditModal();
+        }
+
         // Load when page is ready
         document.addEventListener('DOMContentLoaded', init);
     </script>

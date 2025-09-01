@@ -2,11 +2,65 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
+/* ===== CSS CUSTOM PROPERTIES ===== */
+:root {
+    --color-primary: #333;
+    --color-primary-light: #555;
+    --color-primary-alpha: #333333D9;
+    --color-text: #333;
+    --color-text-muted: #666;
+    --color-text-light: #999;
+    --color-text-lighter: #bbb;
+    --color-text-lightest: #ddd;
+    --color-text-disabled: #ccc;
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #bcb8ac;
+    --color-bg-overlay: rgba(0, 0, 0, 0.75);
+    --color-bg-hover: rgba(255, 255, 255, 0.5);
+    --color-bg-focus: rgba(255, 255, 255, 0.8);
+    --color-bg-gray: #f5f5f5;
+    --color-bg-gray-hover: #e8e8e8;
+    --color-bg-gray-light: #f0f0f0;
+    --color-bg-button: rgba(200, 200, 200, 0.3);
+    --color-border: rgba(51, 51, 51, 0.3);
+    --color-border-focus: rgba(51, 51, 51, 0.8);
+    --color-success: #4CAF50;
+    --color-success-hover: #45a049;
+    --color-error: #f44336;
+    --color-error-hover: #da190b;
+    --color-warning: #ffc107;
+    --color-na: #D3D3D3;
+    --color-na-text: #6A6A6A;
+    
+    --font-primary: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'Courier Prime', monospace;
+    
+    --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.1);
+    
+    --border-radius-small: 4px;
+    --border-radius-medium: 8px;
+    --border-radius-large: 16px;
+    --border-radius-xl: 20px;
+    --border-radius-round: 50%;
+    
+    --transition-fast: all 0.2s ease;
+    --transition-standard: all 0.3s ease;
+    
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 20px;
+    --spacing-xl: 30px;
+    --spacing-xxl: 40px;
+    --spacing-xxxl: 60px;
+}
+
 /* ===== BASE STYLES ===== */
 body {
-    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #bcb8ac;
-    color: #333;
+    font-family: var(--font-primary);
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
     width: 90%;
     max-width: 700px;
     min-height: 100vh;
@@ -26,14 +80,14 @@ h1 {
     font-weight: 300;
     line-height: 1.2;
     margin-top: 0;
-    margin-bottom: 30px;
+    margin-bottom: var(--spacing-xl);
 }
 
 .link {
-    color: #333333D9;
+    color: var(--color-primary-alpha);
     text-decoration: underline;
     font-size: 14px;
-    transition: all 0.3s ease;
+    transition: var(--transition-standard);
 }
 
 /* ===== LAYOUT COMPONENTS ===== */
@@ -43,11 +97,12 @@ h1 {
     align-items: center;
     justify-content: center;
     width: 100%;
-    background: #ffffff;
+    background: var(--color-bg-primary);
     backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 40px 60px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius-xl);
+    padding: var(--spacing-xxl) var(--spacing-xxxl);
+    box-shadow: var(--shadow-card);
+    margin: var(--spacing-lg) 0;
 }
 
 .bottom-section {
@@ -83,16 +138,16 @@ h1 {
 .goal-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--spacing-md);
     padding: 0;
-    margin-bottom: 8px;
-    transition: all 0.3s ease;
+    margin-bottom: var(--spacing-sm);
+    transition: var(--transition-standard);
     animation: slideIn 0.3s ease-out;
     position: relative;
 }
 
 .goal-item:hover {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: var(--color-bg-hover);
 }
 
 .goal-item.completed .goal-text {
@@ -102,13 +157,13 @@ h1 {
 
 /* Goal Drag Handle */
 .goal-drag-handle {
-    color: #bbb;
+    color: var(--color-text-lighter);
     cursor: grab;
     font-size: 14px;
     line-height: 1;
-    padding: 4px;
+    padding: var(--spacing-xs);
     opacity: 0;
-    transition: all 0.2s ease;
+    transition: var(--transition-fast);
     flex-shrink: 0;
     user-select: none;
     font-weight: bold;
@@ -127,10 +182,10 @@ h1 {
 .goal-checkbox {
     font-size: 18px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--transition-fast);
     flex-shrink: 0;
     margin-bottom: 5px;
-    color: #333;
+    color: var(--color-text);
 }
 
 .goal-checkbox:hover {
@@ -138,112 +193,96 @@ h1 {
 }
 
 .goal-checkbox.fa-square {
-    color: #666;
+    color: var(--color-text-muted);
 }
 
 .goal-checkbox.fa-square-check {
-    color: #333;
+    color: var(--color-text);
 }
 
 /* Goal Text */
 .goal-text {
     flex: 1;
     font-size: 20px;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-mono);
     font-weight: 400;
-    color: #333;
+    color: var(--color-text);
     line-height: 1.4;
     word-wrap: break-word;
     overflow-wrap: break-word;
     outline: none;
-    border-bottom: 1px solid rgba(51, 51, 51, 0.3);
-    padding: 2px 4px;
-    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--color-border);
+    padding: 2px var(--spacing-xs);
+    transition: var(--transition-fast);
 }
 
 .goal-text:focus {
-    border-color: rgba(51, 51, 51, 0.8);
-    background-color: rgba(255, 255, 255, 0.8);
+    border-color: var(--color-border-focus);
+    background-color: var(--color-bg-focus);
 }
 
 .goal-text:empty::before {
     content: "";
-    color: #999;
+    color: var(--color-text-light);
 }
 
-/* Goal Delete Button */
-.goal-delete {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    padding: 0;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-    opacity: 0;
-    flex-shrink: 0;
-}
-
-.goal-delete i {
-    margin-top: 1px;
-    color: #ddd;
-    transition: all 0.2s ease;
-}
-
-.goal-delete:hover i {
-    color: #f44336;
-}
-
-.goal-item:hover .goal-delete {
-    opacity: 1;
-}
-
-.goal-item:only-child .goal-delete {
-    display: none;
-}
-
-/* Goal Star Button */
+/* Goal Action Buttons (Delete & Star) */
+.goal-delete,
 .goal-star {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 16px;
     padding: 0;
     width: 20px;
     height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s ease;
+    border-radius: var(--border-radius-round);
+    transition: var(--transition-fast);
     opacity: 0;
     flex-shrink: 0;
 }
 
+.goal-delete {
+    font-size: 14px;
+}
+
+.goal-star {
+    font-size: 16px;
+}
+
+.goal-delete i {
+    margin-top: 1px;
+    color: var(--color-text-lightest);
+    transition: var(--transition-fast);
+}
+
+.goal-delete:hover i {
+    color: var(--color-error);
+}
+
 .goal-star i {
-    color: #ddd;
-    transition: all 0.2s ease;
+    color: var(--color-text-lightest);
+    transition: var(--transition-fast);
 }
 
-.goal-star:hover i {
-    color: #ffc107;
-}
-
+.goal-star:hover i,
 .goal-star.starred i {
-    color: #ffc107;
+    color: var(--color-warning);
 }
 
 .goal-star.starred {
     opacity: 1;
 }
 
+.goal-item:hover .goal-delete,
 .goal-item:hover .goal-star {
     opacity: 1;
+}
+
+.goal-item:only-child .goal-delete {
+    display: none;
 }
 
 /* Drag and Drop States */
@@ -253,13 +292,13 @@ h1 {
 }
 
 .goal-item.drag-over-top {
-    border-top: 3px solid #333;
+    border-top: 3px solid var(--color-primary);
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
 
 .goal-item.drag-over-bottom {
-    border-bottom: 3px solid #333;
+    border-bottom: 3px solid var(--color-primary);
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
@@ -268,22 +307,22 @@ h1 {
 .add-item-btn {
     width: 32px;
     height: 32px;
-    background-color: rgba(200, 200, 200, 0.3);
+    background-color: var(--color-bg-button);
     color: #7c7c7c;
     border: none;
-    border-radius: 50%;
+    border-radius: var(--border-radius-round);
     font-size: 20px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--transition-fast);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 20px auto 0;
+    margin: var(--spacing-lg) auto 0;
 }
 
 .add-item-btn:hover {
-    background-color: #333;
-    color: #ffffff;
+    background-color: var(--color-primary);
+    color: var(--color-bg-primary);
     transform: scale(1.05);
 }
 
@@ -294,24 +333,42 @@ h1 {
 /* ===== ARCHIVE PAGE STYLES ===== */
 .archive-back-link {
     align-self: flex-start;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-lg);
+}
+
+.no-entries {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-style: italic;
+    padding: var(--spacing-xl);
 }
 
 /* Archive Entry Layout */
 .entry-row {
     width: 700px;
     display: grid;
-    grid-template-columns: 180px 420px 100px;
+    grid-template-columns: 180px 380px 40px 100px;
     align-items: start;
     margin: 10px 0;
+    position: relative;
+}
+
+.entry-row.empty-entry {
+    opacity: 0.6;
 }
 
 .entry-date-column,
 .entry-text-column,
-.entry-success-column {
-    padding: 8px;
+.entry-success-column,
+.entry-edit-column {
+    padding: var(--spacing-sm);
     font-size: 14px;
     line-height: 1.4;
+}
+
+.entry-text-column.empty-text {
+    color: var(--color-text-muted);
+    font-style: italic;
 }
 
 .entry-success-column {
@@ -322,66 +379,46 @@ h1 {
 .success-toggle {
     background: none;
     border: 1px solid;
-    border-radius: 4px;
-    padding: 4px 8px;
+    border-radius: var(--border-radius-small);
+    padding: var(--spacing-xs) var(--spacing-sm);
     font-size: 12px;
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition-standard);
     min-width: 70px;
 }
 
 .success-toggle.success {
-    background-color: #4CAF50;
+    background-color: var(--color-success);
     color: white;
-    border-color: #4CAF50;
+    border-color: var(--color-success);
 }
 
 .success-toggle.success:hover {
-    background-color: #45a049;
-    border-color: #45a049;
+    background-color: var(--color-success-hover);
+    border-color: var(--color-success-hover);
     transform: scale(1.05);
 }
 
 .success-toggle.fail {
-    background-color: #f44336;
+    background-color: var(--color-error);
     color: white;
-    border-color: #f44336;
+    border-color: var(--color-error);
 }
 
 .success-toggle.fail:hover {
-    background-color: #da190b;
-    border-color: #da190b;
+    background-color: var(--color-error-hover);
+    border-color: var(--color-error-hover);
     transform: scale(1.05);
 }
 
 .success-toggle.n\/a {
-    background-color: #D3D3D3;
-    color: #6A6A6A;
-    border-color: #D3D3D3;
+    background-color: var(--color-na);
+    color: var(--color-na-text);
+    border-color: var(--color-na);
     cursor: not-allowed;
-}
-
-/* Success Status Display */
-.success-status {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.success-status.success {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.success-status.fail {
-    background-color: #f44336;
-    color: white;
 }
 
 /* Archive Goals List Styling */
@@ -393,13 +430,13 @@ h1 {
 }
 
 .goals-list-archive li {
-    margin-bottom: 4px;
+    margin-bottom: var(--spacing-xs);
 }
 
 .goals-list-archive li.completed-goal {
     text-decoration: line-through;
     opacity: 0.7;
-    color: #666;
+    color: var(--color-text-muted);
 }
 
 /* Single item without bullets */
@@ -411,17 +448,166 @@ h1 {
 .goals-list-archive.single-item.completed-goal {
     text-decoration: line-through;
     opacity: 0.7;
-    color: #666;
+    color: var(--color-text-muted);
 }
 
 /* Archive star styling */
 .archive-star {
-    color: #ffc107;
+    color: var(--color-warning);
     font-size: 12px;
-    margin-left: 4px;
+    margin-left: var(--spacing-xs);
 }
 
-/* ===== ANIMATIONS ===== */
+/* Edit Button */
+.entry-edit-column {
+    width: auto;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.edit-entry-btn {
+    background: none;
+    color: var(--color-text-muted);
+    border: none;
+    padding: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+}
+
+.entry-row:hover .edit-entry-btn:not(:disabled) {
+    opacity: 1;
+}
+
+.edit-entry-btn:hover:not(:disabled) {
+    opacity: 1;
+}
+
+.edit-entry-btn:disabled {
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+    opacity: 0;
+}
+
+/* ===== MODAL COMPONENTS ===== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-bg-overlay);
+    z-index: 999;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--color-bg-primary);
+    border-radius: var(--border-radius-large);
+    width: 100%;
+    max-width: 700px;
+    max-height: 85vh;
+    overflow: hidden;
+    box-shadow: var(--shadow-modal);
+    animation: modalSlideIn 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-xxl);
+}
+
+.modal-header {
+    padding: 32px 32px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-text);
+    flex: 1;
+    text-align: center;
+    padding-right: 24px;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    padding: var(--spacing-xs);
+    border-radius: var(--border-radius-small);
+    transition: var(--transition-fast);
+}
+
+.close-modal:hover {
+    background-color: var(--color-bg-gray-light);
+    color: var(--color-text);
+}
+
+.modal-body {
+    padding: 24px 32px;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 60vh;
+}
+
+.modal-footer {
+    padding: 0 32px;
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+}
+
+/* Modal Button Styles */
+.btn {
+    padding: 10px var(--spacing-lg);
+    border: none;
+    border-radius: var(--border-radius-medium);
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition-fast);
+    font-size: 14px;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-light);
+}
+
+.btn-secondary {
+    background-color: var(--color-bg-gray);
+    color: var(--color-text);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-bg-gray-hover);
+}
+
+/* ===== ANIMATIONS & EFFECTS ===== */
 .fade-in {
     animation: fadeIn 0.5s ease-in;
 }
@@ -439,5 +625,53 @@ h1 {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .modal {
+        padding: 10px;
+    }
+    
+    .modal-content {
+        max-width: 100%;
+        max-height: 95vh;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding-left: var(--spacing-lg);
+        padding-right: var(--spacing-lg);
+    }
+    
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    .container {
+        padding: var(--spacing-xl) var(--spacing-lg);
+    }
+    
+    .entry-row {
+        width: 100%;
+        grid-template-columns: 1fr 2fr auto auto;
+        gap: var(--spacing-sm);
     }
 }
